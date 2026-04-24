@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/* Optional: Smooth scroll for the whole app */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ensure the body doesn't add extra scrollbars with the animation */
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #f8fafc;
+}
