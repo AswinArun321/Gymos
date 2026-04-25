@@ -28,7 +28,9 @@ const Login = () => {
     };
 
     return (
-        <div className="relative flex min-h-screen items-center justify-center bg-slate-50 p-6 font-sans overflow-hidden">
+        /* CRITICAL FIX: Changed bg-slate-50 to bg-transparent here so the particles show through */
+        <div className="relative flex min-h-screen items-center justify-center bg-transparent p-6 font-sans overflow-hidden">
+            
             <BackgroundEffect />
 
             <div className="z-10 flex w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-500 hover:shadow-blue-200/50">

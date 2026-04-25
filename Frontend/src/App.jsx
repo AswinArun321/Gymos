@@ -5,6 +5,7 @@ import { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   const [init, setInit] = useState(false);
@@ -26,7 +27,10 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/admin-dashboard" element={<h1 className="text-center mt-20 text-2xl font-bold">Admin Dashboard (Coming Soon)</h1>} />
+            
+            {/* CRITICAL FIX: Replaced the <h1> placeholder with your actual component */}
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         ) : (

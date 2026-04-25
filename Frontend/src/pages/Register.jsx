@@ -58,8 +58,14 @@ const Register = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-[#f0f2f5] p-6 font-sans">
-            <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+        /* CRITICAL: bg-transparent, relative, and overflow-hidden for the particle effect */
+        <div className="relative flex min-h-screen items-center justify-center bg-transparent p-6 font-sans overflow-hidden">
+            
+            {/* Background Animation */}
+            <BackgroundEffect />
+
+            {/* z-10 added to keep the card above the particles */}
+            <div className="z-10 flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-500 hover:shadow-blue-200/50 border border-white/20">
                 
                 {/* Left Branding Panel */}
                 <div className="hidden flex-1 flex-col justify-center bg-gradient-to-br from-blue-600 to-blue-800 p-12 text-white lg:flex">
@@ -89,7 +95,7 @@ const Register = () => {
                     <p className="mt-2 text-sm text-gray-500 mb-8">Launch your digital gym in minutes.</p>
 
                     {error && (
-                        <div className="mb-6 rounded-xl border-l-4 border-red-500 bg-red-50 p-4 text-sm text-red-700 animate-shake">
+                        <div className="mb-6 rounded-xl border-l-4 border-red-500 bg-red-50 p-4 text-sm text-red-700 animate-pulse">
                             {error}
                         </div>
                     )}
@@ -97,29 +103,29 @@ const Register = () => {
                     <form onSubmit={handleRegister} className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div className="group col-span-2 md:col-span-1">
                             <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Gym Name</label>
-                            <input name="gym_name" type="text" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600" placeholder="Gym Name" />
+                            <input name="gym_name" type="text" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="Gym Name" />
                         </div>
                         <div className="group col-span-2 md:col-span-1">
                             <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Owner Name</label>
-                            <input name="owner_name" type="text" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600" placeholder="Owner's Name" />
+                            <input name="owner_name" type="text" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="Owner's Name" />
                         </div>
                         <div className="group col-span-2">
                             <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Email Address</label>
-                            <input name="email" type="email" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600" placeholder="Your Email" />
+                            <input name="email" type="email" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="Your Email" />
                         </div>
                         <div className="group col-span-2">
                             <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Phone</label>
-                            <input name="phone" type="text" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600" placeholder="+91 90000 00000" />
+                            <input name="phone" type="text" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="+91 90000 00000" />
                         </div>
                         
                         {/* Password Section */}
                         <div className="group col-span-2 md:col-span-1">
                             <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Password</label>
-                            <input name="password" type="password" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600" placeholder="••••••••" />
+                            <input name="password" type="password" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="••••••••" />
                         </div>
                         <div className="group col-span-2 md:col-span-1">
                             <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Confirm Password</label>
-                            <input name="confirmPassword" type="password" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600" placeholder="••••••••" />
+                            <input name="confirmPassword" type="password" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="••••••••" />
                         </div>
 
                         <button 

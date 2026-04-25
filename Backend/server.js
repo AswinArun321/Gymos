@@ -4,11 +4,12 @@ const { Pool } = require('pg');
 require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const app = express();
-
+const memberRoutes = require('./routes/memberRoutes');
 // Middleware
 app.use(cors());
 app.use(express.json()); // Allows Express to parse incoming JSON payloads
 app.use('/api/auth', authRoutes);
+app.use('/api/members', memberRoutes);
 // PostgreSQL Connection Pool
 // Concept: Connection Pooling prevents the server from opening and closing a new 
 // database connection for every single HTTP request, which would severely degrade performance.
