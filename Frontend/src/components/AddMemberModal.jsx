@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import axios from 'axios'; // We added this import
+import axios from 'axios';
 
 const AddMemberModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
@@ -12,7 +12,6 @@ const AddMemberModal = ({ isOpen, onClose }) => {
         plan: '1-month',
     });
     
-    // We added loading and error states for better UX
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
 
@@ -26,20 +25,17 @@ const AddMemberModal = ({ isOpen, onClose }) => {
         setError('');
 
         try {
-            // We use the same hardcoded gym_id = 1 we used for registration
+            // CRITICAL FIX: Changed gym_id to an integer (1) to match your PostgreSQL database
             const dataToSend = {
                 ...formData,
-                gym_id: "6628b5e2b0c3f50011a0c0a0" // A dummy MongoDB ObjectId for now
+                gym_id: 1 
             };
 
-            // Call our new Node.js route!
             const response = await axios.post('http://localhost:5000/api/members/add', dataToSend);
 
             if (response.data.success) {
-                // Success! Close the modal and reset the form.
                 console.log("Member saved successfully:", response.data.member);
-                onClose();
-                // In a real app, we would also trigger a refresh of the dashboard data here.
+                onClose(); // Closes the modal on success
             }
         } catch (err) {
             console.error("Failed to add member:", err);
@@ -64,7 +60,6 @@ const AddMemberModal = ({ isOpen, onClose }) => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                    {/* Display an error message if the API call fails */}
                     {error && (
                         <div className="rounded-xl border-l-4 border-red-500 bg-red-50 p-4 text-sm text-red-700">
                             {error}

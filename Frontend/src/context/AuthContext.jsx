@@ -20,16 +20,20 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            // Pointing to your Node.js backend!
             const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-            const { token, user } = response.data;
             
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
+            // Extract role directly from response data
+            const { token, user, role } = response.data; 
             
-            setUser(user);
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            return { success: true, role: user.role };
+            const fullUserData = { ...user, role };
+            
+            localStorage.setItem('token', token || ''); // Fallback if no JWT yet
+            localStorage.setItem('user', JSON.stringify(fullUserData));
+            
+            setUser(fullUserData);
+            if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            return { success: true, role: role }; 
         } catch (error) {
             return { success: false, message: error.response?.data?.error || 'Login failed' };
         }

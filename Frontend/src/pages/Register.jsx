@@ -2,7 +2,50 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import BackgroundEffect from '../components/BackgroundEffect';
+import { Eye, EyeOff } from 'lucide-react';
 
+// 1. We build the animated input right here at the top of the file!
+const AnimatedPasswordInput = ({ name, placeholder, value, onChange }) => {
+    const [show, setShow] = useState(false);
+
+    return (
+        <div className="relative group">
+            <input 
+                name={name} 
+                type={show ? "text" : "password"} 
+                value={value}
+                onChange={onChange} 
+                required 
+                className="w-full border-b-2 border-gray-200 py-2 pr-12 outline-none transition-all duration-300 focus:border-blue-600 bg-transparent text-gray-800" 
+                placeholder={placeholder} 
+            />
+            <button
+                type="button"
+                onClick={() => setShow(!show)}
+                className={`absolute right-1 top-1/2 -translate-y-1/2 rounded-full p-2 transition-all duration-300 ease-out focus:outline-none hover:bg-slate-100 active:scale-90 ${
+                    show ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-700'
+                }`}
+            >
+                <div className="relative h-5 w-5">
+                    <Eye 
+                        size={20} 
+                        className={`absolute inset-0 transition-all duration-300 transform ${
+                            show ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-50 -rotate-45'
+                        }`} 
+                    />
+                    <EyeOff 
+                        size={20} 
+                        className={`absolute inset-0 transition-all duration-300 transform ${
+                            !show ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-50 rotate-45'
+                        }`} 
+                    />
+                </div>
+            </button>
+        </div>
+    );
+};
+
+// 2. Your main Register component
 const Register = () => {
     const [formData, setFormData] = useState({
         gym_name: '',
@@ -10,9 +53,10 @@ const Register = () => {
         email: '',
         phone: '',
         password: '',
-        confirmPassword: '', // New field
+        confirmPassword: '', 
         role: 'admin'
     });
+    
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
@@ -25,13 +69,11 @@ const Register = () => {
         e.preventDefault();
         setError('');
 
-        // Validation: Check if passwords match
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match!");
             return;
         }
 
-        // Validation: Password length check (best practice)
         if (formData.password.length < 6) {
             setError("Password must be at least 6 characters long.");
             return;
@@ -40,7 +82,6 @@ const Register = () => {
         setIsSubmitting(true);
 
         try {
-            // Note: We don't send confirmPassword to the backend
             const { confirmPassword, ...dataToSend } = formData;
             
             const response = await axios.post('http://localhost:5000/api/auth/register', {
@@ -58,16 +99,12 @@ const Register = () => {
     };
 
     return (
-        /* CRITICAL: bg-transparent, relative, and overflow-hidden for the particle effect */
         <div className="relative flex min-h-screen items-center justify-center bg-transparent p-6 font-sans overflow-hidden">
             
-            {/* Background Animation */}
             <BackgroundEffect />
 
-            {/* z-10 added to keep the card above the particles */}
             <div className="z-10 flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-500 hover:shadow-blue-200/50 border border-white/20">
                 
-                {/* Left Branding Panel */}
                 <div className="hidden flex-1 flex-col justify-center bg-gradient-to-br from-blue-600 to-blue-800 p-12 text-white lg:flex">
                     <h1 className="text-5xl font-black tracking-tighter text-white">Join GymOS</h1>
                     <p className="mt-6 text-lg text-blue-100">
@@ -89,7 +126,6 @@ const Register = () => {
                     </div>
                 </div>
 
-                {/* Right Form Panel */}
                 <div className="flex flex-[1.2] flex-col justify-center p-8 md:p-12">
                     <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
                     <p className="mt-2 text-sm text-gray-500 mb-8">Launch your digital gym in minutes.</p>
@@ -102,30 +138,40 @@ const Register = () => {
 
                     <form onSubmit={handleRegister} className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div className="group col-span-2 md:col-span-1">
-                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Gym Name</label>
+                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600 transition-colors">Gym Name</label>
                             <input name="gym_name" type="text" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="Gym Name" />
                         </div>
                         <div className="group col-span-2 md:col-span-1">
-                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Owner Name</label>
+                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600 transition-colors">Owner Name</label>
                             <input name="owner_name" type="text" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="Owner's Name" />
                         </div>
                         <div className="group col-span-2">
-                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Email Address</label>
+                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600 transition-colors">Email Address</label>
                             <input name="email" type="email" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="Your Email" />
                         </div>
                         <div className="group col-span-2">
-                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Phone</label>
+                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600 transition-colors">Phone</label>
                             <input name="phone" type="text" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="+91 90000 00000" />
                         </div>
                         
-                        {/* Password Section */}
+                        {/* We use your new animated component here! */}
                         <div className="group col-span-2 md:col-span-1">
-                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Password</label>
-                            <input name="password" type="password" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="••••••••" />
+                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600 transition-colors">Password</label>
+                            <AnimatedPasswordInput 
+                                name="password" 
+                                placeholder="••••••••" 
+                                value={formData.password}
+                                onChange={handleChange}
+                            />
                         </div>
                         <div className="group col-span-2 md:col-span-1">
-                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600">Confirm Password</label>
-                            <input name="confirmPassword" type="password" onChange={handleChange} required className="w-full border-b-2 border-gray-200 py-2 outline-none transition-all focus:border-blue-600 bg-transparent" placeholder="••••••••" />
+                            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400 group-focus-within:text-blue-600 transition-colors">Confirm Password</label>
+                            <AnimatedPasswordInput 
+                                name="confirmPassword" 
+                                placeholder="••••••••" 
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                            />
                         </div>
 
                         <button 

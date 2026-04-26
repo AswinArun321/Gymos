@@ -72,7 +72,7 @@ const AdminDashboard = () => {
                 <header className="bg-white p-8 flex justify-between items-center shadow-sm z-10 border-b border-slate-200">
                     <div>
                         <h2 className="text-3xl font-bold text-slate-800">
-                            Welcome back, {user?.name?.split(' ')[0] || 'Admin'}! 👋
+                            Welcome back, {user?.name?.split(' ')[0] || 'Admin'}! 
                         </h2>
                         <p className="text-slate-500 mt-1">Here is what's happening at your gym today.</p>
                     </div>
