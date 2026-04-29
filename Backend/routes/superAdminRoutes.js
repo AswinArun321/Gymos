@@ -3,16 +3,11 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-// Get high-level platform stats
+// 1. Get high-level platform stats (For Overview Dashboard)
 router.get('/platform-stats', async (req, res) => {
     try {
-        // 1. Get total active gyms
         const gymCount = await pool.query('SELECT COUNT(*) FROM Gyms');
-        
-        // 2. Get total end users (members) across all gyms
         const memberCount = await pool.query("SELECT COUNT(*) FROM Users WHERE role = 'member'");
-        
-        // 3. Get the 5 most recent gym registrations for the table
         const recentGyms = await pool.query(`
             SELECT gym_id, gym_name, owner_name, created_at, subscription_plan 
             FROM Gyms 
@@ -33,6 +28,42 @@ router.get('/platform-stats', async (req, res) => {
         res.status(500).json({ error: 'Server Error' });
     }
 });
+
+// ==========================================
+// NEW ROUTES FOR THE SIDEBAR TABS
+// ==========================================
+
+// 2. Get ALL Gyms (For "All Gyms" Tab)
+router.get('/gyms', async (req, res) => {
+    try {
+        const gyms = await pool.query('SELECT * FROM Gyms ORDER BY created_at DESC');
+        res.status(200).json({ success: true, gyms: gyms.rows });
+    } catch (error) {
+        console.error("Error fetching all gyms:", error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+});
+
+// 3. Get ALL Users across the entire platform (For "Platform Users" Tab)
+router.get('/users', async (req, res) => {
+    try {
+        const users = await pool.query(`
+            SELECT u.user_id, u.name, u.email, u.role, u.is_active, u.created_at, g.gym_name 
+            FROM Users u 
+            LEFT JOIN Gyms g ON u.gym_id = g.gym_id 
+            ORDER BY u.created_at DESC
+        `);
+        res.status(200).json({ success: true, users: users.rows });
+    } catch (error) {
+        console.error("Error fetching all users:", error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+});
+
+// ==========================================
+// EXISTING MANAGEMENT ROUTES
+// ==========================================
+
 // Update a gym's status (Active / Suspended)
 router.put('/gyms/:id/status', async (req, res) => {
     try {
@@ -41,7 +72,6 @@ router.put('/gyms/:id/status', async (req, res) => {
         
         await pool.query('UPDATE Gyms SET status = $1 WHERE gym_id = $2', [status, id]);
         
-        // If suspending the gym, suspend all its users too
         const isActive = status === 'Active';
         await pool.query('UPDATE Users SET is_active = $1 WHERE gym_id = $2', [isActive, id]);
 
@@ -56,8 +86,6 @@ router.put('/gyms/:id/status', async (req, res) => {
 router.delete('/gyms/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        // Because we set ON DELETE CASCADE in your SQL tables, 
-        // deleting the gym will automatically delete all its members and plans!
         await pool.query('DELETE FROM Gyms WHERE gym_id = $1', [id]);
         
         res.status(200).json({ success: true, message: 'Gym deleted successfully' });
@@ -66,4 +94,5 @@ router.delete('/gyms/:id', async (req, res) => {
         res.status(500).json({ error: 'Server Error' });
     }
 });
+
 module.exports = router;

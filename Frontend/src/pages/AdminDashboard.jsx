@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import AddMemberModal from '../components/AddMemberModal';
+import MembersList from './MembersList';
 import { 
     LayoutDashboard, Users, Dumbbell, CreditCard, 
     LogOut, TrendingUp, AlertCircle, Plus 
@@ -13,6 +14,9 @@ const AdminDashboard = () => {
     
     // State to control if the modal is open or closed
     const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    // State to track which sidebar tab is currently active
+    const [activeTab, setActiveTab] = useState('overview');
 
     const handleLogout = () => {
         logout();
@@ -36,22 +40,45 @@ const AdminDashboard = () => {
                 </div>
 
                 <nav className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
-                    <a href="#" className="flex items-center gap-3 px-4 py-3 bg-blue-800 text-white rounded-xl transition-colors">
+                    <button 
+                        onClick={() => setActiveTab('overview')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                            activeTab === 'overview' ? 'bg-blue-800 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white'
+                        }`}
+                    >
                         <LayoutDashboard size={20} />
                         <span className="font-semibold">Dashboard</span>
-                    </a>
-                    <a href="#" className="flex items-center gap-3 px-4 py-3 text-blue-200 hover:bg-blue-800 hover:text-white rounded-xl transition-colors">
+                    </button>
+                    
+                    <button 
+                        onClick={() => setActiveTab('members')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                            activeTab === 'members' ? 'bg-blue-800 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white'
+                        }`}
+                    >
                         <Users size={20} />
                         <span className="font-semibold">Members</span>
-                    </a>
-                    <a href="#" className="flex items-center gap-3 px-4 py-3 text-blue-200 hover:bg-blue-800 hover:text-white rounded-xl transition-colors">
+                    </button>
+                    
+                    <button 
+                        onClick={() => setActiveTab('trainers')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                            activeTab === 'trainers' ? 'bg-blue-800 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white'
+                        }`}
+                    >
                         <Dumbbell size={20} />
                         <span className="font-semibold">Trainers</span>
-                    </a>
-                    <a href="#" className="flex items-center gap-3 px-4 py-3 text-blue-200 hover:bg-blue-800 hover:text-white rounded-xl transition-colors">
+                    </button>
+                    
+                    <button 
+                        onClick={() => setActiveTab('billing')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                            activeTab === 'billing' ? 'bg-blue-800 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white'
+                        }`}
+                    >
                         <CreditCard size={20} />
                         <span className="font-semibold">Billing & Plans</span>
-                    </a>
+                    </button>
                 </nav>
 
                 <div className="p-4 border-t border-blue-800">
@@ -87,85 +114,106 @@ const AdminDashboard = () => {
                     </button>
                 </header>
 
-                {/* Dashboard Widgets */}
+                {/* Dashboard Widgets & Tabs */}
                 <main className="p-8">
                     
-                    {/* Stat Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
-                            <div className="h-14 w-14 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
-                                <TrendingUp size={28} />
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Monthly Revenue</p>
-                                <h3 className="text-2xl font-bold text-slate-800">₹45,200</h3>
-                            </div>
-                        </div>
+                    {/* TAB 1: OVERVIEW */}
+                    {activeTab === 'overview' && (
+                        <>
+                            {/* Stat Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
+                                    <div className="h-14 w-14 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
+                                        <TrendingUp size={28} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Monthly Revenue</p>
+                                        <h3 className="text-2xl font-bold text-slate-800">₹45,200</h3>
+                                    </div>
+                                </div>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
-                            <div className="h-14 w-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
-                                <Users size={28} />
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Active Members</p>
-                                <h3 className="text-2xl font-bold text-slate-800">142</h3>
-                            </div>
-                        </div>
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
+                                    <div className="h-14 w-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                                        <Users size={28} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Active Members</p>
+                                        <h3 className="text-2xl font-bold text-slate-800">142</h3>
+                                    </div>
+                                </div>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
-                            <div className="h-14 w-14 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
-                                <Dumbbell size={28} />
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Total Trainers</p>
-                                <h3 className="text-2xl font-bold text-slate-800">8</h3>
-                            </div>
-                        </div>
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
+                                    <div className="h-14 w-14 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
+                                        <Dumbbell size={28} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Total Trainers</p>
+                                        <h3 className="text-2xl font-bold text-slate-800">8</h3>
+                                    </div>
+                                </div>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
-                            <div className="h-14 w-14 bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
-                                <AlertCircle size={28} />
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
+                                    <div className="h-14 w-14 bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
+                                        <AlertCircle size={28} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Expiring Soon</p>
+                                        <h3 className="text-2xl font-bold text-slate-800">12</h3>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Expiring Soon</p>
-                                <h3 className="text-2xl font-bold text-slate-800">12</h3>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Recent Activity Table */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-slate-800">Recent Registrations</h3>
-                            <button className="text-blue-600 font-semibold text-sm hover:underline">View All</button>
+                            {/* Recent Activity Table */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                                <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                                    <h3 className="text-lg font-bold text-slate-800">Recent Registrations</h3>
+                                    <button className="text-blue-600 font-semibold text-sm hover:underline">View All</button>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
+                                                <th className="p-4 font-semibold">Name</th>
+                                                <th className="p-4 font-semibold">Plan</th>
+                                                <th className="p-4 font-semibold">Join Date</th>
+                                                <th className="p-4 font-semibold">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                                                <td className="p-4 font-medium text-slate-800">Arjun Menon</td>
+                                                <td className="p-4 text-slate-600">6 Months Pro</td>
+                                                <td className="p-4 text-slate-600">Apr 24, 2026</td>
+                                                <td className="p-4"><span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span></td>
+                                            </tr>
+                                            <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                                                <td className="p-4 font-medium text-slate-800">Sneha Nair</td>
+                                                <td className="p-4 text-slate-600">1 Year Premium</td>
+                                                <td className="p-4 text-slate-600">Apr 22, 2026</td>
+                                                <td className="p-4"><span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* TAB 2: MEMBERS LIST */}
+                    {activeTab === 'members' && <MembersList />}
+
+                    {/* TAB 3 & 4: PLACEHOLDERS FOR NOW */}
+                    {activeTab === 'trainers' && (
+                        <div className="flex justify-center items-center h-64 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <h2 className="text-2xl font-bold text-slate-400">Trainers Module Coming Soon</h2>
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
-                                        <th className="p-4 font-semibold">Name</th>
-                                        <th className="p-4 font-semibold">Plan</th>
-                                        <th className="p-4 font-semibold">Join Date</th>
-                                        <th className="p-4 font-semibold">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                                        <td className="p-4 font-medium text-slate-800">Arjun Menon</td>
-                                        <td className="p-4 text-slate-600">6 Months Pro</td>
-                                        <td className="p-4 text-slate-600">Apr 24, 2026</td>
-                                        <td className="p-4"><span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span></td>
-                                    </tr>
-                                    <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                                        <td className="p-4 font-medium text-slate-800">Sneha Nair</td>
-                                        <td className="p-4 text-slate-600">1 Year Premium</td>
-                                        <td className="p-4 text-slate-600">Apr 22, 2026</td>
-                                        <td className="p-4"><span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    )}
+                    
+                    {activeTab === 'billing' && (
+                        <div className="flex justify-center items-center h-64 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <h2 className="text-2xl font-bold text-slate-400">Billing Module Coming Soon</h2>
                         </div>
-                    </div>
+                    )}
 
                 </main>
             </div>

@@ -6,7 +6,7 @@ import { loadSlim } from "@tsparticles/slim";
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
-import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 
 function App() {
   const [init, setInit] = useState(false);
