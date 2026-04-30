@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { X } from 'lucide-react';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
 
-const AddMemberModal = ({ isOpen, onClose }) => {
-    if (!isOpen) return null;
-
+const AddMemberModal = ({ isOpen, onClose, refreshData }) => {
+    const { user } = useContext(AuthContext); // Bring in the user context!
+    
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -15,6 +16,8 @@ const AddMemberModal = ({ isOpen, onClose }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
 
+    if (!isOpen) return null;
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -24,18 +27,20 @@ const AddMemberModal = ({ isOpen, onClose }) => {
         setIsSubmitting(true);
         setError('');
 
-        try {
-            // CRITICAL FIX: Changed gym_id to an integer (1) to match your PostgreSQL database
-            const dataToSend = {
-                ...formData,
-                gym_id: 1 
-            };
+        // THE SAFETY CHECK: Make sure the user is actually logged in!
+        if (!user || !user.gym_id) {
+            setError("Your session has expired. Please refresh the page and log in again.");
+            setIsSubmitting(false);
+            return;
+        }
 
-            const response = await axios.post('http://localhost:5000/api/members/add', dataToSend);
+        try {
+            const response = await axios.post(`http://localhost:5000/api/admin/gyms/${user.gym_id}/members`, formData);
 
             if (response.data.success) {
-                console.log("Member saved successfully:", response.data.member);
-                onClose(); // Closes the modal on success
+                console.log("Member saved successfully:", response.data.user);
+                if (refreshData) refreshData(); 
+                onClose(); 
             }
         } catch (err) {
             console.error("Failed to add member:", err);

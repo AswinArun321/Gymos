@@ -1,8 +1,10 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import BackgroundEffect from '../components/BackgroundEffect';
 import { Eye, EyeOff } from 'lucide-react';
+
 
 // 1. The reusable animated component dropped right in
 const AnimatedPasswordInput = ({ name, placeholder, value, onChange }) => {
@@ -57,18 +59,27 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true); // FIXED: Changed from setIsLoading to setIsSubmitting
         setError('');
-        setIsSubmitting(true);
-        const result = await login(email, password);
-        
-        if (result.success) {
-            if (result.role === 'superadmin') navigate('/superadmin-dashboard');
-            else if (result.role === 'admin') navigate('/admin-dashboard');
-            else if (result.role === 'trainer') navigate('/trainer-dashboard');
-            else navigate('/member-dashboard');
-        } else {
-            setError(result.message);
-            setIsSubmitting(false);
+
+        try {
+            const response = await axios.post('http://localhost:5000/api/auth/login', {
+                email,
+                password
+            });
+
+            if (response.data.success) {
+                // Use the login function from AuthContext
+                login(response.data.user); 
+                navigate('/admin-dashboard');
+            }
+        } catch (err) {
+            console.error("Login Error:", err);
+            // Show the error on the screen
+            setError(err.response?.data?.error || "Cannot connect to server.");
+        } finally {
+            // FIXED: Changed from setIsLoading to setIsSubmitting
+            setIsSubmitting(false); 
         }
     };
 

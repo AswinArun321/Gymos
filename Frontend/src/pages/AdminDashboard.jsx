@@ -1,8 +1,11 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import AddMemberModal from '../components/AddMemberModal';
 import MembersList from './MembersList';
+import TrainersList from './TrainersList';
+import BillingPlans from './BillingPlans';
 import { 
     LayoutDashboard, Users, Dumbbell, CreditCard, 
     LogOut, TrendingUp, AlertCircle, Plus 
@@ -12,11 +15,49 @@ const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     
-    // State to control if the modal is open or closed
+    // UI State
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    // State to track which sidebar tab is currently active
     const [activeTab, setActiveTab] = useState('overview');
+
+    // Dashboard Data State
+    const [dashboardStats, setDashboardStats] = useState({
+        monthlyRevenue: 0,
+        totalMembers: 0,
+        totalTrainers: 0,
+        expiringSoon: 0
+    });
+    const [recentMembers, setRecentMembers] = useState([]);
+    const [isDashboardLoading, setIsDashboardLoading] = useState(true);
+
+    // Fetch live data for the overview tab
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            // Only fetch if they have a gym_id and are looking at the overview tab
+            if (!user?.gym_id || activeTab !== 'overview') return;
+            
+            setIsDashboardLoading(true);
+            try {
+                // Fetch both stats and recent members at the same time using Promise.all
+                const [statsRes, recentRes] = await Promise.all([
+                    axios.get(`http://localhost:5000/api/admin/gyms/${user.gym_id}/stats`),
+                    axios.get(`http://localhost:5000/api/admin/gyms/${user.gym_id}/recent-registrations`)
+                ]);
+                
+                if (statsRes.data.success) {
+                    setDashboardStats(statsRes.data.stats);
+                }
+                if (recentRes.data.success) {
+                    setRecentMembers(recentRes.data.recent);
+                }
+            } catch (error) {
+                console.error("Failed to fetch dashboard data", error);
+            } finally {
+                setIsDashboardLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, [user, activeTab]);
 
     const handleLogout = () => {
         logout();
@@ -26,10 +67,12 @@ const AdminDashboard = () => {
     return (
         <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
             
-            {/* Modal Component (Hidden by default based on state) */}
+            {/* Add Member Modal */}
             <AddMemberModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
+                // We pass an empty function here for now, but ideally it refreshes the members list!
+                refreshData={() => {}} 
             />
 
             {/* SIDEBAR */}
@@ -95,7 +138,6 @@ const AdminDashboard = () => {
             {/* MAIN CONTENT AREA */}
             <div className="flex-1 flex flex-col h-screen overflow-y-auto relative">
                 
-                {/* Top Header */}
                 <header className="bg-white p-8 flex justify-between items-center shadow-sm z-10 border-b border-slate-200">
                     <div>
                         <h2 className="text-3xl font-bold text-slate-800">
@@ -104,7 +146,6 @@ const AdminDashboard = () => {
                         <p className="text-slate-500 mt-1">Here is what's happening at your gym today.</p>
                     </div>
                     
-                    {/* The Button that triggers the modal */}
                     <button 
                         onClick={() => setIsModalOpen(true)}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-200 flex items-center gap-2 transform active:scale-95"
@@ -114,12 +155,11 @@ const AdminDashboard = () => {
                     </button>
                 </header>
 
-                {/* Dashboard Widgets & Tabs */}
                 <main className="p-8">
                     
                     {/* TAB 1: OVERVIEW */}
                     {activeTab === 'overview' && (
-                        <>
+                        <div className="animate-in fade-in duration-500">
                             {/* Stat Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-shadow">
@@ -128,7 +168,9 @@ const AdminDashboard = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Monthly Revenue</p>
-                                        <h3 className="text-2xl font-bold text-slate-800">₹45,200</h3>
+                                        <h3 className="text-2xl font-bold text-slate-800">
+                                            {isDashboardLoading ? '...' : `₹${dashboardStats.monthlyRevenue.toLocaleString()}`}
+                                        </h3>
                                     </div>
                                 </div>
 
@@ -137,8 +179,10 @@ const AdminDashboard = () => {
                                         <Users size={28} />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Active Members</p>
-                                        <h3 className="text-2xl font-bold text-slate-800">142</h3>
+                                        <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Total Members</p>
+                                        <h3 className="text-2xl font-bold text-slate-800">
+                                            {isDashboardLoading ? '...' : dashboardStats.totalMembers}
+                                        </h3>
                                     </div>
                                 </div>
 
@@ -148,7 +192,9 @@ const AdminDashboard = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Total Trainers</p>
-                                        <h3 className="text-2xl font-bold text-slate-800">8</h3>
+                                        <h3 className="text-2xl font-bold text-slate-800">
+                                            {isDashboardLoading ? '...' : dashboardStats.totalTrainers}
+                                        </h3>
                                     </div>
                                 </div>
 
@@ -158,7 +204,9 @@ const AdminDashboard = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Expiring Soon</p>
-                                        <h3 className="text-2xl font-bold text-slate-800">12</h3>
+                                        <h3 className="text-2xl font-bold text-slate-800">
+                                            {isDashboardLoading ? '...' : dashboardStats.expiringSoon}
+                                        </h3>
                                     </div>
                                 </div>
                             </div>
@@ -167,53 +215,47 @@ const AdminDashboard = () => {
                             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                                 <div className="p-6 border-b border-slate-100 flex justify-between items-center">
                                     <h3 className="text-lg font-bold text-slate-800">Recent Registrations</h3>
-                                    <button className="text-blue-600 font-semibold text-sm hover:underline">View All</button>
+                                    <button 
+                                        onClick={() => setActiveTab('members')}
+                                        className="text-blue-600 font-semibold text-sm hover:underline"
+                                    >
+                                        View All
+                                    </button>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
                                             <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
                                                 <th className="p-4 font-semibold">Name</th>
-                                                <th className="p-4 font-semibold">Plan</th>
                                                 <th className="p-4 font-semibold">Join Date</th>
                                                 <th className="p-4 font-semibold">Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                                                <td className="p-4 font-medium text-slate-800">Arjun Menon</td>
-                                                <td className="p-4 text-slate-600">6 Months Pro</td>
-                                                <td className="p-4 text-slate-600">Apr 24, 2026</td>
-                                                <td className="p-4"><span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span></td>
-                                            </tr>
-                                            <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                                                <td className="p-4 font-medium text-slate-800">Sneha Nair</td>
-                                                <td className="p-4 text-slate-600">1 Year Premium</td>
-                                                <td className="p-4 text-slate-600">Apr 22, 2026</td>
-                                                <td className="p-4"><span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span></td>
-                                            </tr>
+                                            {isDashboardLoading ? (
+                                                <tr><td colSpan="3" className="p-6 text-center text-slate-400">Loading data...</td></tr>
+                                            ) : recentMembers.length === 0 ? (
+                                                <tr><td colSpan="3" className="p-6 text-center text-slate-400">No members registered yet.</td></tr>
+                                            ) : (
+                                                recentMembers.map(member => (
+                                                    <tr key={member.user_id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                                                        <td className="p-4 font-medium text-slate-800">{member.name}</td>
+                                                        <td className="p-4 text-slate-600">{new Date(member.created_at).toLocaleDateString()}</td>
+                                                        <td className="p-4"><span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span></td>
+                                                    </tr>
+                                                ))
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                        </>
+                        </div>
                     )}
 
-                    {/* TAB 2: MEMBERS LIST */}
+                    {/* OTHER TABS */}
                     {activeTab === 'members' && <MembersList />}
-
-                    {/* TAB 3 & 4: PLACEHOLDERS FOR NOW */}
-                    {activeTab === 'trainers' && (
-                        <div className="flex justify-center items-center h-64 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <h2 className="text-2xl font-bold text-slate-400">Trainers Module Coming Soon</h2>
-                        </div>
-                    )}
-                    
-                    {activeTab === 'billing' && (
-                        <div className="flex justify-center items-center h-64 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <h2 className="text-2xl font-bold text-slate-400">Billing Module Coming Soon</h2>
-                        </div>
-                    )}
+                    {activeTab === 'trainers' && <TrainersList />}
+                    {activeTab === 'billing' && <BillingPlans />}
 
                 </main>
             </div>

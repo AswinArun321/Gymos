@@ -2,19 +2,26 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 require('dotenv').config();
+
+// Route Imports
 const authRoutes = require('./routes/authRoutes');
-const app = express();
 const memberRoutes = require('./routes/memberRoutes');
 const superAdminRoutes = require('./routes/superAdminRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // THE KEY ADDITION
+
+const app = express();
+
 // Middleware
 app.use(cors());
-app.use(express.json()); // Allows Express to parse incoming JSON payloads
+app.use(express.json()); 
+
+// Route Mounting
 app.use('/api/auth', authRoutes);
 app.use('/api/members', memberRoutes);
 app.use('/api/superadmin', superAdminRoutes);
+app.use('/api/admin', adminRoutes); // THE KEY ADDITION: Now /api/admin/... works!
+
 // PostgreSQL Connection Pool
-// Concept: Connection Pooling prevents the server from opening and closing a new 
-// database connection for every single HTTP request, which would severely degrade performance.
 const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,

@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Search, User, Mail, Phone, Calendar, MoreVertical } from 'lucide-react';
+import { Search, Mail, Phone, Calendar, MoreVertical } from 'lucide-react';
 
 const MembersList = () => {
     const { user } = useContext(AuthContext);
@@ -23,7 +23,12 @@ const MembersList = () => {
             }
         };
 
-        if (user?.gym_id) fetchMembers();
+        // THE FIX: Stop loading if user exists but has no gym_id
+        if (user && user.gym_id) {
+            fetchMembers();
+        } else if (user) {
+            setIsLoading(false);
+        }
     }, [user]);
 
     // Filter members based on the search bar
